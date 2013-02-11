@@ -1,5 +1,7 @@
 function [ H ] = rect2hexgrid( X,Y,A, hexgrid )
-%RECT2HEXGRID Interpolate a matrix in a certain rectangular coordinate
+%RECT2HEXGRID 
+%   [ H ] = rect2hexgrid( X,Y,A, hexgrid )
+%Interpolate a matrix in a certain rectangular coordinate
 %system to the hex grid specified. If X and Y are vectors, they will be
 %'meshgrid'ed.
 %
