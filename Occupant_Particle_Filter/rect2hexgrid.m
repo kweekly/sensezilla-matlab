@@ -24,6 +24,25 @@ if ( all(size(X) ~= size(A)) || all(size(Y) ~= size(A)) )
    error('Size of X and Y and A must match');
 end
 
-H = interp2(X,Y,A,hexgrid.xs,hexgrid.ys);
+% Different method depending if we are going up or down in resolution
+if (any(size(X) < size(hexgrid.xs)))
+    H = interp2(X,Y,A,hexgrid.xs,hexgrid.ys);
+else
+    xflat = X(:);
+    yflat = Y(:);
+    aflat = A(:);
+    [hexi,hexj] = nearestHex(xflat,yflat,hexgrid);
+    idx = find((hexi > 0) & (hexj > 0) & (hexi <= size(hexgrid.xs,2)) & (hexj <= size(hexgrid.xs,1)));
+    hexi = hexi(idx);
+    hexj = hexj(idx);
+    aflat = aflat(idx);
+    H  = zeros(size(hexgrid.xs));
+    Hc = zeros(size(hexgrid.xs));
+    for ii=1:length(hexi)
+            H(hexj(ii),hexi(ii)) = H(hexj(ii),hexi(ii)) + aflat(ii);
+            Hc(hexj(ii),hexi(ii)) = Hc(hexj(ii),hexi(ii)) + 1;
+    end
+    idx = find(Hc);
+    H(idx) = H(idx) ./ Hc(idx);
 end
-
+end

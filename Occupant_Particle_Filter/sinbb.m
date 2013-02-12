@@ -1,13 +1,21 @@
 [obsmap, entrymap, stopmap] = readFloorplan('floorplan.png');
 imgbounds = [[-160.11,468.5];[-308.07,159.54]];
-grid = hexGrid(imgbounds(1,:),imgbounds(2,:),1);
+grid = hexGrid(imgbounds(1,:),imgbounds(2,:),2,2);
 obsmap_hex = rect2hexgrid(obsmap, grid);
 entrymap_hex = rect2hexgrid(entrymap, grid);
 stopmap_hex = rect2hexgrid(stopmap, grid);
 
-figure;
+f = figure;
+set(f,'Renderer','zbuffer');
 hold on;
-surf(grid.xs,grid.ys,obsmap_hex-5,'EdgeColor','None'); view([0, 90]);
+[obsj,obsi] = find(obsmap_hex > 0.2);
+hplot = hexPlot(obsi,obsj,'k',grid);
+%surf(grid.xs,grid.ys,entrymap_hex-3,'EdgeColor','None');
+%surf(grid.xs,grid.ys,stopmap_hex-1,'EdgeColor','None');
+view([0, 90]);
 dat = importdata('data/test.csv');
 data = dat.data(dat.data(:,2)==1,:);
-plot(data(:,3),-data(:,4),'g-+');
+data(:,4) = -data(:,4);
+visited = unique(data(:,[3 4]),'rows');
+[visi,visj] = nearestHex(visited(:,1),visited(:,2),grid);
+hexPlot(visi,visj,'r',grid);
