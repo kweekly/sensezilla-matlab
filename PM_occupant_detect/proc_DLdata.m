@@ -1,5 +1,5 @@
-
-load('SWARM_02282013\data.mat');
+datdir = ['D:\documents\ucb\singapore\data\PMsensortest\'];
+load([datdir 'SWARM_02282013\data.mat']);
 
 % Every sample is approximately 50ms
 
@@ -26,7 +26,7 @@ ch8_05u = data(:,15);
 dat = ch1_2u;
 twind = 60;
 ssratio = 10;
-load('SWARM_02282013\tfound.mat');
+load([datdir 'SWARM_02282013\tfound.mat']);
 %%
 
 twind = 300;

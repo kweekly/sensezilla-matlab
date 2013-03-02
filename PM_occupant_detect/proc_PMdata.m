@@ -1,5 +1,6 @@
 %%
-dat = importdata('CREST_02262013\pmdata.par');
+datdir = ['D:\documents\ucb\singapore\data\PMsensortest\'];
+dat = importdata([datdir 'CREST_02262013\pmdata.par']);
 t = dat(:,1)/1000.0;
 v = dat(:,2);
 while ( v(1) == 1 || (v(1) == 0 && v(2) == 0) )

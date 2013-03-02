@@ -28,7 +28,8 @@ lmarks = [[110,379];
             [367,268];
             [435,403]];
       
-dd = 'SWARM_02282013';
+datdir = ['D:\documents\ucb\singapore\data\PMsensortest\'];
+dd = [datdir 'SWARM_02282013'];
 files = dir([dd '/*.AVI']);
 toff = 0;
 tfound = zeros(0,1);
