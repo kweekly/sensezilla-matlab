@@ -1,8 +1,9 @@
 %% Loading data
 close all;
-datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\'];
-pmdatafile = [datdir 'SWARM_02282013\\data.mat'];
-camdatafile = [datdir 'SWARM_02282013\\tfound.mat'];
+datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_02282013'];
+%datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_03072013'];
+pmdatafile = [datdir '\\data.mat'];
+camdatafile = [datdir '\\tfound.mat'];
 load(pmdatafile);
 
 fprintf(['Loaded PM data from ' pmdatafile '\n']);
@@ -95,6 +96,13 @@ r = corrcoef(tfoundf,datf);
 title(['Ch5 >2um particles.' num2str(twind) 's Time window r=' num2str(r(1,2))]);  ylim([0 ymax]);
 ch5f = datf;
 
+%% Perform calibration
+% for DSM501A 2um output
+cal_a = 8.475e4;
+cal_b = 45.71;
+
+combf = combf * cal_a + cal_b; % in units of pcs/L
+
 %%  Finding shift amount 
 
 [i,j1] = max(xcorr( tfoundf, combf ));
@@ -109,10 +117,11 @@ fprintf(['Detected shift amount=' num2str(shift) ' (' num2str(shift * (twind/ssr
 
 %% Numerical Probability Distributions
 xbins = [0:4e-3:2.8e-2 inf]; % x are in units of "camera occurances per second"
-ybins = [0:2e-4:1.8e-3 inf]; % y are in units of "low occupancy time ratio" ( time low per total time, or seconds / seconds )
+ybins = [40:20:200 inf]; % y are in units of pcs/L
 figure;
 [Z, counts, xbins, ybins] = histheatmap(tfoundf_sh,combf_sh,xbins,ybins);
-yscale = 1e-3;
+%yscale = 1e-3;
+yscale = 1;
 fprintf('\nObserved Occurances Pr(x,y):\n            ');
 for j=1:length(ybins)-1
    fprintf('& %3.1f - %3.1f ',ybins(j)/yscale,ybins(j+1)/yscale);
@@ -125,8 +134,29 @@ for i=1:length(xbins)-1
    for j=1:length(ybins)-1
       fprintf(' & %9d%',Z(j,i));
    end
-   fprintf(' \\\\\\hline\n');
+   fprintf(' \\\\\\hhline{~*{11}{-}}\n');
 end
+
+%% Calculate Binary Detector
+
+PM_th = 100;
+Cam_th = 1e-2;
+
+TP= nnz(tfoundf_sh < Cam_th & combf_sh < PM_th)/nnz(combf_sh < PM_th);
+FP= nnz(tfoundf_sh >= Cam_th & combf_sh < PM_th)/nnz(combf_sh < PM_th);
+TN= nnz(tfoundf_sh >= Cam_th & combf_sh >= PM_th)/nnz(combf_sh >= PM_th);
+FN= nnz(tfoundf_sh < Cam_th & combf_sh >= PM_th)/nnz(combf_sh >= PM_th);
+TOTN = nnz((tfoundf_sh >= Cam_th & combf_sh < PM_th) | (tfoundf_sh < Cam_th & combf_sh >= PM_th) )/length(combf_sh);
+
+fprintf(['TRUE  POS: Pr(Cam < ' num2str(Cam_th) ' | PM_th < ' num2str(PM_th) ')=' num2str( TP ) '\n']);
+fprintf(['FALSE POS: Pr(Cam >= ' num2str(Cam_th) ' | PM_th < ' num2str(PM_th) ')=' num2str( FP ) '\n']);
+
+fprintf(['TRUE  NEG: Pr(Cam >= ' num2str(Cam_th) ' | PM_th >= ' num2str(PM_th) ')=' num2str( TN ) '\n']);
+fprintf(['FALSE NEG: Pr(Cam < ' num2str(Cam_th) ' | PM_th >= ' num2str(PM_th) ')=' num2str(  FN ) '\n']);
+
+fprintf(['TOTAL NEG: ' num2str( TOTN ) '\n']);
+
+fprintf('\n');
 
 %% Calculate Pearson's Coeff. for coarseness of particles
 f = figure;
@@ -149,6 +179,7 @@ close(f);
 %% Kalman Filter
 pfitrev = polyfit(combf_sh, tfoundf_sh, 1);
 pfit = polyfit(tfoundf_sh, combf_sh, 1);
+pfit_est = pfitrev(1)*combf_sh + pfitrev(2);
 
 % From: http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf
 % transition matrix 
@@ -182,7 +213,7 @@ figure;
 subaxis(3,1,1,  'Spacing', 0.03, 'Padding', .05, 'MarginRight',0.01,'MarginLeft',0.08,'MarginBottom',0.1,'MarginTop',0.05); 
 hold on;
 plot(tf_sh,tfoundf_sh,'m'); 
-plot(tf_sh,pfitrev(1)*combf_sh + pfitrev(2),'g');
+plot(tf_sh,pfit_est,'g');
 plot(tf_sh,x_est(1,:)); title('Estimate of Local Occupancy');
 subaxis(2);
 plot(tf_sh,x_est(2,:)); title('Estimate of Room Occupancy'); 
@@ -203,15 +234,21 @@ set(gca,'XTickLabel','');
 set(gca,'XTick',[]);
 axis tight;
 subaxis(2);
-plot(tf_sh/3600,combf_sh/yscale); xlabel('Hours'); ylabel({'Mean PM Sensor Ratio';'(parts per 1000)'});
+plot(tf_sh/3600,combf_sh/yscale); xlabel('Hours'); ylabel({'Concentration of';'\geq 2 \mum particles (per L)'});
 axis tight;
 
+%{
 figure; hold on;
-plot(tfoundf_sh/xscale,  combf_sh/yscale, '.'); xlabel({'Camera Occurances';'per 100s'}); ylabel({'Mean PM Sensor Ratio';'(parts per 1000)'});
+plot(tfoundf_sh/xscale,  combf_sh/yscale, '.'); xlabel({'Camera Occurances';'per 100s'}); ylabel({'PM Concentration';'(2 \mum particles/L)'});
 tvar = [0:1e-3:max(tfoundf_sh)];
 plot(tvar/xscale,(tvar * pfit(1) + pfit(2))/yscale,'Color','m','LineWidth',2);
 axis tight;
+%}
 
-
+figure; hold on;
+plot(combf_sh/yscale,  tfoundf_sh/xscale, '.'); ylabel({'Camera Occurances';'per 100s'}); xlabel({'Concentration of';'\geq 2 \mum particles (per L)'});
+tvar = [0 max(combf_sh/yscale)];
+plot(tvar/yscale,(tvar * pfitrev(1) + pfitrev(2))/xscale,'Color','m','LineWidth',2);
+axis tight;
 
 

@@ -43,6 +43,6 @@ end
 
 grid.size = [nTiles_x;nTiles_y];
 [grid.xs,grid.ys] = meshgrid(0:nTiles_x-1,0:nTiles_y-1);
-grid.ys = grid.ys * H + mod(grid.xs,2) * H/2 + H/2 + Y(1);
+grid.ys = grid.ys * H - mod(grid.xs,2) * H/2 - H/2 + Y(1);
 grid.xs = grid.xs * S + R + X(1);
 end

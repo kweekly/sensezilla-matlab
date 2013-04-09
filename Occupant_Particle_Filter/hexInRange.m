@@ -6,6 +6,11 @@ function [ endi,endj ] = hexInRange( starti, startj, obsmap, range )
 neighbor0 = [[-1,-1];[0,-1];[1,-1];[1,0];[0,1];[-1,0]];
 neighbor1 = [[0,1];[0,0];[0,1];[0,1];[0,0];[0,1]];
 
+if ( starti > size(obsmap,2) || starti <= 0 || startj > size(obsmap,1) || startj <= 0 || obsmap(startj,starti) > 0.2) 
+    endi = [];
+    endj = [];
+    return
+end
 newset = [starti startj];
 retval = zeros(0,2);
 for i=1:range
@@ -18,7 +23,7 @@ for i=1:range
     remval = zeros(0,2);
     
     for k=1:size(candidates,1)
-       if (obsmap(candidates(k,2),candidates(k,1)) > 0)
+       if (candidates(k,2) > size(obsmap,1) || candidates(k,1) > size(obsmap,2) || obsmap(candidates(k,2),candidates(k,1)) > 0.2)
            remval = [remval;candidates(k,:)];
        end
     end

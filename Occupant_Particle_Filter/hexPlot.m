@@ -11,7 +11,7 @@ W = 2*R;
 
 
 centx = (i-1) * S + R + grid.covbounds(1,1);
-centy = (j-1) * H + mod(i,2) * H/2 + H/2 + grid.covbounds(2,1);
+centy = (j-1) * H - mod(i,2) * H/2 + grid.covbounds(2,1);
 deg = [0:pi/3:2*pi];
 xverts = repmat(centx,1,7) + repmat(R*cos(deg),length(centx),1);
 yverts = repmat(centy,1,7) + repmat(R*sin(deg),length(centx),1);
