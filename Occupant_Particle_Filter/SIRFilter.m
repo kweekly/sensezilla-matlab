@@ -12,7 +12,7 @@ function [Xest, West, Xtraj] = SIRFilter( X0, W0, Y, T, transition_model, observ
 %   Y is a matrix of observations. 
 %           size(Y,1) is the dimension of the observations. 
 %           size(Y,2) is the number of observations.
-%   T is a vector of times that the observations arrived.
+%   T is a vector of times that the observations arrived. 
 %           size(T,1) must equal size(Y,2)
 %
 %   Functional arguments:
@@ -62,7 +62,7 @@ West = W0;
 dt = -1;
 Xtraj = zeros(size(X0,1),size(T,1));
 for tidx=1:size(T,1)
-    if (mod(tidx,100) == 0)
+    if (mod(tidx,1) == 0)
        fprintf([num2str(tidx) ' of ' num2str(size(T,1)) ' samples processed.\n']); 
     end
     % normalize the importance weights
@@ -82,7 +82,7 @@ for tidx=1:size(T,1)
     [w,i] = max(West);
     Xtraj(:,tidx) = Xest(:,i);
     
-    if (tidx < size(T))
+    if (tidx < size(T,1))
         dt = T(tidx+1) - T(tidx);
     end
 end
