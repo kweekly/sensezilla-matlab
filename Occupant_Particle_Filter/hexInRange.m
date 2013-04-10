@@ -23,7 +23,7 @@ for i=1:range
     remval = zeros(0,2);
     
     for k=1:size(candidates,1)
-       if (candidates(k,2) > size(obsmap,1) || candidates(k,1) > size(obsmap,2) || obsmap(candidates(k,2),candidates(k,1)) > 0.2)
+       if (any(candidates(k,:) <= 0) || candidates(k,2) > size(obsmap,1) || candidates(k,1) > size(obsmap,2) || obsmap(candidates(k,2),candidates(k,1)) > 0.2)
            remval = [remval;candidates(k,:)];
        end
     end
@@ -36,4 +36,3 @@ retval = union(retval,newset,'rows');
 endi = retval(:,1);
 endj = retval(:,2);
 end
-

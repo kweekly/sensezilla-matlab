@@ -8,7 +8,7 @@ S = 3/2*R;
 W = 2*R;
 
 i = floor((x - grid.covbounds(1,1))/S) + 1;
-j = ceil(((y - grid.covbounds(2,1)) + mod(i,2)*H/2 - H/2)/H) + 1;
+j = ceil((y - grid.covbounds(2,1) + mod(i-1,2)*H/2 + H/2)/H) + 1;
 
 end
 
