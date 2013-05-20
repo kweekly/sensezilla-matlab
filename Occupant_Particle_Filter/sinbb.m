@@ -69,7 +69,7 @@ hexPlot(visi,visj,'r',grid); axis equal;
 %% Uniform Stupid Sampling
 
 % Create uniform samples
-nSamples = 10000;
+nSamples = 100000;
 Xest = rand([2 nSamples]);
 Xest(1,:) = Xest(1,:) * (imgbounds(1,2) - imgbounds(1,1)) + imgbounds(1,1);
 Xest(2,:) = Xest(2,:) * (imgbounds(2,2) - imgbounds(2,1)) + imgbounds(2,1);

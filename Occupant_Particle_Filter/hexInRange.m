@@ -4,7 +4,7 @@ function [ endi,endj ] = hexInRange( starti, startj, obsmap, range )
 %   obstacles in obsmap
 
 neighbor0 = [[-1,-1];[0,-1];[1,-1];[1,0];[0,1];[-1,0]];
-neighbor1 = [[0,1];[0,0];[0,1];[0,1];[0,0];[0,1]];
+neighbor1 = [[0,1];  [0,0];  [0,1];[0,1];[0,0];[0,1]];
 
 if ( starti > size(obsmap,2) || starti <= 0 || startj > size(obsmap,1) || startj <= 0 || obsmap(startj,starti) > 0.2) 
     endi = [];
