@@ -9,7 +9,8 @@ function [ Xnext ] = transitionFunc( X, dt, params )
     Xnext = zeros(size(X));
     for si_idx=1:size(X,2)
         %[hi,hj] = hexInRange(si(si_idx),sj(si_idx), params.obsmap_hex, hexrange );
-        if (si(si_idx) <= 0 || sj(si_idx) <= 0 || si(si_idx) > size(params.hexcache,2) || sj(si_idx) > size(params.hexcache,1))
+        if (si(si_idx) <= 0 || sj(si_idx) <= 0 || si(si_idx) > size(params.hexcache,2) || sj(si_idx) > size(params.hexcache,1) ...
+                || isnan(si(si_idx)) || isnan(si(si_idx)) )
             Xnext(:,si_idx) = [nan;nan];
             continue
         end
