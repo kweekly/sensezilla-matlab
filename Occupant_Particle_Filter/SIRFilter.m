@@ -56,6 +56,23 @@ if (~isa(observation_model,'function_handle') || nargin(observation_model) ~= 3 
    error('observation_model must be a function handle with two inputs and one output')
 end
 
+doframes = 0;
+if isfield(params,'framedir')
+    doframes = 1;
+   
+    framefig = figure;
+    set(framefig,'Renderer','zbuffer');
+    hold on;
+    [obsj,obsi] = find(params.obsmap_hex > 0.2);
+    hplot = hexPlot(obsi,obsj,'k',params.grid);
+    view([0, 90]);
+    axis equal;
+    frameplt = plot(X0(1,:),X0(2,:),'g.','MarkerSize',1);
+    gtplt = plot(params.gtdata_x(1,1),params.gtdata_x(1,2),'bo','MarkerSize',10);
+    maxplt = plot(X0(1,1),X0(1,1),'rx','MarkerSize',10);
+    drawnow;
+end
+
 % initialization (nothing to do, already done for us)
 Xest = X0;
 West = W0;
@@ -71,16 +88,27 @@ for tidx=1:size(T,1)
     else
         West = West / sum(West);
     end
+    
     % sample according to belief distribution
-    Xidx = discretesample(West, size(Xest,2));
+    Xidx = discretesample(West, size(Xest,2));    
     Xest = Xest(:,Xidx);
     % predict the next state
-    Xest = transition_model(Xest, dt, params);
+    Xest = transition_model(Xest, dt, params);  
     % update the importance weights
     West = observation_model(Y(:,tidx),Xest, params);
+    % fprintf(['\t' num2str(sum(West)) '\n']);
     
     [w,i] = max(West);
     Xtraj(:,tidx) = Xest(:,i);
+    
+    if doframes==1
+        set(frameplt, 'XData',Xest(1,:), 'YData',Xest(2,:));
+        t = T(tidx);
+        set(gtplt, 'XData', interp1(params.gtdata_t,params.gtdata_x(:,1),t,'linear','extrap'), ...
+                   'YData', interp1(params.gtdata_t,params.gtdata_x(:,2),t,'linear','extrap'));
+        set(maxplt, 'XData', Xest(1,i), 'YData', Xest(2,i));
+        drawnow;
+    end
     
     if (tidx < size(T,1))
         dt = T(tidx+1) - T(tidx);

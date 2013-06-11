@@ -9,7 +9,14 @@ H = 2*R*sin(60*pi/180);
 S = 3/2*R;
 W = 2*R;
 
+if size(i,2)>1
+    i = i';
+end
 
+if size(j,2)>1
+    j = j';
+end
+    
 centx = (i-1) * S + R + grid.covbounds(1,1);
 centy = (j-1) * H + mod(i,2) * H/2 - H + grid.covbounds(2,1);
 deg = [0:pi/3:2*pi];

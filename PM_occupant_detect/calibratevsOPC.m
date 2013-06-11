@@ -141,6 +141,6 @@ plot([0 max(pmdata.mean_2u_5m*1e3)],(coeff2u_rev(2) + [0 coeff2u_rev(1)*max(pmda
 axis tight;
 ylim([0 250]);
 xlabel('Mean PM Sensor Ratio (parts per 1000)');
-ylabel('Particle Concentration (pcs/liter)');
+ylabel('Concentration of \geq 2\mum particles (pcs/liter)');
 
 

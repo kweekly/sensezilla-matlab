@@ -234,7 +234,7 @@ set(gca,'XTickLabel','');
 set(gca,'XTick',[]);
 axis tight;
 subaxis(2);
-plot(tf_sh/3600,combf_sh/yscale); xlabel('Hours'); ylabel({'Concentration of';'\geq 2 \mum particles (per L)'});
+plot(tf_sh/3600,combf_sh/yscale); xlabel('Hours'); ylabel({'Concentration of';'\geq 2 \mum particles (pcs/L)'});
 axis tight;
 
 %{
@@ -246,7 +246,7 @@ axis tight;
 %}
 
 figure; hold on;
-plot(combf_sh/yscale,  tfoundf_sh/xscale, '.'); ylabel({'Camera Occurances';'per 100s'}); xlabel({'Concentration of';'\geq 2 \mum particles (per L)'});
+plot(combf_sh/yscale,  tfoundf_sh/xscale, '.'); ylabel({'Camera Occurances';'per 100s'}); xlabel({'Concentration of';'\geq 2 \mum particles (pcs/L)'});
 tvar = [0 max(combf_sh/yscale)];
 plot(tvar/yscale,(tvar * pfitrev(1) + pfitrev(2))/xscale,'Color','m','LineWidth',2);
 axis tight;
