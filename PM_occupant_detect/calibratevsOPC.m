@@ -1,7 +1,8 @@
 %% Loading data
 close all;
 %datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_02282013'];
-datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_03072013'];
+%datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_03072013'];
+datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\DH_data'];
 pmdatafile = [datdir '\\data.mat'];
 opcdatafile = [datdir '\\OPCdata.mat'];
 
@@ -12,8 +13,7 @@ pmdata.t = data(:,1) / 2000;
 pmdata.t = pmdata.t - pmdata.t(1);
 
 % turn into "low times"
-data(:,3:15) = 1-data(:,3:15)./repmat(data(:,2),1,15-3+1);
-
+data(:,3:15) = 1-data(:,3:15)./repmat(data(:,2),1,15-3+1);t
 pmdata.ch1_2u = data(:,3);
 pmdata.ch1_1u = data(:,4);
 pmdata.ch2_2u = data(:,5);
@@ -35,11 +35,11 @@ pmdata.mean_05u = mean([pmdata.ch6_05u pmdata.ch7_05u pmdata.ch8_05u],2);
 
 clear data;
 
-opcdata = load(opcdatafile);
+load(opcdatafile);
 opcdata.t = opcdata.t - opcdata.t(1);
 
 %% Averaging
-
+%{
 fprintf('ch1 2u averaging \n');
 pmdata.ch1_2u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch1_2u, opcdata.t, opcdata.pm2);
 fprintf('ch2 2u averaging \n');
@@ -50,9 +50,11 @@ fprintf('ch4 2u averaging \n');
 pmdata.ch4_2u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch4_2u, opcdata.t, opcdata.pm2);
 fprintf('ch5 2u averaging \n');
 pmdata.ch5_2u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch5_2u, opcdata.t, opcdata.pm2);
+%}
 fprintf('mean 2u averaging \n');
 pmdata.mean_2u_cal = do_calibrate_sametime(pmdata.t, pmdata.mean_2u, opcdata.t, opcdata.pm2);
 
+%{
 fprintf('ch1 1u averaging \n');
 pmdata.ch1_1u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch1_1u, opcdata.t, opcdata.pm1);
 fprintf('ch2 1u averaging \n');
@@ -63,38 +65,45 @@ fprintf('ch4 1u averaging \n');
 pmdata.ch4_1u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch4_1u, opcdata.t, opcdata.pm1);
 fprintf('ch5 1u averaging \n');
 pmdata.ch5_1u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch5_1u, opcdata.t, opcdata.pm1);
+%}
 fprintf('mean 1u averaging \n');
 pmdata.mean_1u_cal = do_calibrate_sametime(pmdata.t, pmdata.mean_1u, opcdata.t, opcdata.pm1);
 
+%{
 fprintf('ch6 05u averaging \n');
 pmdata.ch6_05u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch6_05u, opcdata.t, opcdata.pm05);
 fprintf('ch7 05u averaging \n');
 pmdata.ch7_05u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch7_05u, opcdata.t, opcdata.pm05);
 fprintf('ch8 05u averaging \n');
 pmdata.ch8_05u_cal = do_calibrate_sametime(pmdata.t, pmdata.ch8_05u, opcdata.t, opcdata.pm05);
+%}
 fprintf('mean 05u averaging \n');
 pmdata.mean_05u_cal = do_calibrate_sametime(pmdata.t, pmdata.mean_05u, opcdata.t, opcdata.pm05);
 
 %% Sliding Window filtering to 5m
 nsamp = 10;
-
+%{
 pmdata.ch1_2u_5m = do_calibrate_filter(pmdata.ch1_2u_cal,nsamp);
 pmdata.ch2_2u_5m = do_calibrate_filter(pmdata.ch2_2u_cal,nsamp);
 pmdata.ch3_2u_5m = do_calibrate_filter(pmdata.ch3_2u_cal,nsamp);
 pmdata.ch4_2u_5m = do_calibrate_filter(pmdata.ch4_2u_cal,nsamp);
 pmdata.ch5_2u_5m = do_calibrate_filter(pmdata.ch5_2u_cal,nsamp);
+%}
 pmdata.mean_2u_5m = do_calibrate_filter(pmdata.mean_2u_cal,nsamp);
-
+%{
 pmdata.ch1_1u_5m = do_calibrate_filter(pmdata.ch1_1u_cal,nsamp);
 pmdata.ch2_1u_5m = do_calibrate_filter(pmdata.ch2_1u_cal,nsamp);
 pmdata.ch3_1u_5m = do_calibrate_filter(pmdata.ch3_1u_cal,nsamp);
 pmdata.ch4_1u_5m = do_calibrate_filter(pmdata.ch4_1u_cal,nsamp);
 pmdata.ch5_1u_5m = do_calibrate_filter(pmdata.ch5_1u_cal,nsamp);
+%}
 pmdata.mean_1u_5m = do_calibrate_filter(pmdata.mean_1u_cal,nsamp);
 
+%{
 pmdata.ch6_05u_5m = do_calibrate_filter(pmdata.ch6_05u_cal,nsamp);
 pmdata.ch7_05u_5m = do_calibrate_filter(pmdata.ch7_05u_cal,nsamp);
 pmdata.ch8_05u_5m = do_calibrate_filter(pmdata.ch8_05u_cal,nsamp);
+%}
 pmdata.mean_05u_5m = do_calibrate_filter(pmdata.mean_05u_cal,nsamp);
 
 opcdata.pm03_5m = do_calibrate_filter(opcdata.pm03,nsamp);
@@ -106,8 +115,8 @@ opcdata.pm5_5m = do_calibrate_filter(opcdata.pm5,nsamp);
 
 
 %% Remove some nastiness
-idx1 = 1356;
-idx2 = 2044;
+idx1 = 1;
+idx2 = length(opcdata.t);
 
 opcdata.t_rn = [opcdata.t(1:idx1);opcdata.t(idx2:end)];
 
@@ -131,6 +140,24 @@ coeff05u_rev = polyfit(pmdata.mean_05u_5m, opcdata.pm05_5m, 1);
 mse2 = sqrt( mean( (pmdata.mean_2u_5m * coeff2u_rev(1) + coeff2u_rev(2) - opcdata.pm2_5m).^2 ) ) / ( max(opcdata.pm2_5m) - min(opcdata.pm2_5m))
 mse1 = sqrt( mean( (pmdata.mean_1u_5m * coeff1u_rev(1) + coeff1u_rev(2) - opcdata.pm1_5m).^2) )  / ( max(opcdata.pm1_5m) - min(opcdata.pm1_5m))
 mse05 = sqrt( mean( (pmdata.mean_05u_5m * coeff05u_rev(1) + coeff05u_rev(2) - opcdata.pm05_5m).^2) )  / ( max(opcdata.pm05_5m) - min(opcdata.pm05_5m))
+
+%% Scatter 05u
+figure; hold on;
+plot(pmdata.mean_05u_5m*1e3,opcdata.pm05_5m,'.');
+plot([0 max(pmdata.mean_05u_5m*1e3)],(coeff05u_rev(2) + [0 coeff05u_rev(1)*max(pmdata.mean_05u_5m)]),'LineWidth',2,'Color','m');
+%ylim([0 2.5]);
+axis tight;
+xlabel('Mean PM Sensor Ratio (parts per 1000)');
+ylabel('Concentration of \geq 0.5\mum particles (pcs/liter)');
+
+%% Scatter 1u
+figure; hold on;
+plot(pmdata.mean_1u_5m*1e3,opcdata.pm1_5m,'.');
+plot([0 max(pmdata.mean_1u_5m*1e3)],(coeff1u_rev(2) + [0 coeff1u_rev(1)*max(pmdata.mean_1u_5m)]),'LineWidth',2,'Color','m');
+%ylim([0 2.5]);
+axis tight;
+xlabel('Mean PM Sensor Ratio (parts per 1000)');
+ylabel('Concentration of \geq 1\mum particles (pcs/liter)');
 
 
 %% Scatter 2u

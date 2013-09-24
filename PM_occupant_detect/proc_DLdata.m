@@ -1,6 +1,6 @@
 %% Loading data
 close all;
-datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_02282013'];
+datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\DH_data'];
 %datdir = ['D:\\documents\\ucb\\singapore\\data\\PMsensortest\\SWARM_03072013'];
 pmdatafile = [datdir '\\data.mat'];
 camdatafile = [datdir '\\tfound.mat'];
@@ -30,7 +30,6 @@ ch6_05u = data(:,13);
 ch7_05u = data(:,14);
 ch8_05u = data(:,15);
 
-dat = ch1_2u;
 twind = 60;
 ssratio = 10;
 load(camdatafile);
@@ -43,8 +42,8 @@ ymax = 4e-3;
 
 fprintf(['Parameters: twind=' num2str(twind) ' ssratio=' num2str(ssratio) ' Particle Size=2um\n']);
 
-%dat = ch1_1u;
-%doaplot_DLdata; title('Ch1 >1um particles. 1m Time window');
+dat = ch1_1u;
+doaplot_DLdata; title('Ch1 >1um particles. 1m Time window');
 f = figure;
 doaplot_DLdata;
 

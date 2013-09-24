@@ -45,8 +45,10 @@ for ki=1:length(keys)
     senseid = keys{ki};
     sp = sense_pos(senseid);
     rssipos{ki} = [rssi_origin(1)+sp(2)*10, rssi_origin(2) + sp(1)*10];
-    gaussparams{ki} = csvread(['gaussparams_s' senseid '.csv']);
-    dat = importdata(['RSSI_t0005_s' senseid '.csv']);
+    gp = csvread(['gaussparams_s' senseid '.csv']);
+    dat = importdata(['RSSI_t0006_s' senseid '.csv']);
+    
+    gaussparams{ki} = gp;
     
     if ( isstruct(dat) )
         rssidata{ki} = dat.data;
@@ -89,20 +91,40 @@ for ki=1:length(keys)
 end
 
 
+GTinterp = zeros(2,length(T));
+GTinterp(1,:) = interp1(gtdata_t,gtdata_x(:,1),T);
+GTinterp(2,:) = interp1(gtdata_t,gtdata_x(:,2),T);
+% Fake sensor data (simulation)
+for ki=1:length(keys)
+    for ti=1:size(T)
+        gp = params.gaussparams{ki};
+        dist = GTinterp(:,ti)-params.rssipos{ki}';
+        dist = sqrt(dist(1,:).^2 + dist(2,:).^2);
+        dist = dist / 10;
+        muint = interp1(gp(:,1),gp(:,2),dist,'linear','extrap');
+        sigint = interp1(gp(:,1),gp(:,3),dist,'nearest','extrap');
+        Y(ki,ti) = muint+sigint*randn([1 1]);
+        %Y(ki,ti) = muint;
+    end
+end
+
+
 % Fudge it up
+%{
 Y(~isnan(Y)) = Y(~isnan(Y)) + 5; % more RSSI
 for ki=1:length(keys)
    params.gaussparams{ki}(:,3) = params.gaussparams{ki}(:,3); % more sensor noise
 end
-
+%}
 
 %% Uniform Stupid Sampling
 
 nSamples = 10000;
 Xest = zeros([2 nSamples]); 
 
-%{
+
 % Create uniform samples
+
 badidx = 1:nSamples;
 while (~isempty(badidx))
     fprintf(['Creating initial positions, size = ' num2str(length(badidx)) '\n']);
@@ -122,10 +144,10 @@ while (~isempty(badidx))
     end
     badidx = badidx2;
 end
-%}
+
 
 % create fixed samples
-Xest = repmat(gtdata_x(1,:)',[1,nSamples]);
+%Xest = repmat(gtdata_x(1,:)',[1,nSamples]);
 
 West = ones(nSamples,1) * 1/nSamples;
 

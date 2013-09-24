@@ -18,3 +18,8 @@
 
 # savepoints
 *.mat
+
+frames*/
+references/
+PM_occupant_detect/PM_occupant_detect.zip
+*.mp4

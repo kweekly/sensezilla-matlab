@@ -71,6 +71,11 @@ if isfield(params,'framedir')
     gtplt = plot(params.gtdata_x(1,1),params.gtdata_x(1,2),'bo','MarkerSize',10);
     maxplt = plot(X0(1,1),X0(1,1),'rx','MarkerSize',10);
     drawnow;
+    if 0==exist(params.framedir,'dir')
+       mkdir(params.framedir);
+    end
+    [ffname,junk] = sprintf('%s/%05d.png',params.framedir,0);
+    saveas(framefig,ffname,'png');
 end
 
 % initialization (nothing to do, already done for us)
@@ -79,6 +84,7 @@ West = W0;
 dt = -1;
 Xtraj = zeros(size(X0,1),size(T,1));
 for tidx=1:size(T,1)
+    params.sim_t = T(tidx);
     if (mod(tidx,1) == 0)
        fprintf([num2str(tidx) ' of ' num2str(size(T,1)) ' samples processed.\n']); 
     end
@@ -98,16 +104,28 @@ for tidx=1:size(T,1)
     West = observation_model(Y(:,tidx),Xest, params);
     % fprintf(['\t' num2str(sum(West)) '\n']);
     
-    [w,i] = max(West);
-    Xtraj(:,tidx) = Xest(:,i);
+    % finding maximum weight particle
+    %[w,i] = max(West);
+    %Xtraj(:,tidx) = Xest(:,i);
+    
+    % finding mean of particles
+    %Xtraj(:,tidx) = mean(Xest(:,~isnan(Xest(1,:)) & ~isnan(Xest(2,:))),2);
+    
+    %
+    % weighted mean of particles
+    Xwonan = Xest(:,~isnan(Xest(1,:)) & ~isnan(Xest(2,:)) & ~isnan(West'));
+    Wwonan = West(~isnan(Xest(1,:)) & ~isnan(Xest(2,:)) & ~isnan(West'));
+    Xtraj(:,tidx) = sum(Xwonan .* repmat(Wwonan',2,1),2)./sum(Wwonan);
     
     if doframes==1
         set(frameplt, 'XData',Xest(1,:), 'YData',Xest(2,:));
         t = T(tidx);
         set(gtplt, 'XData', interp1(params.gtdata_t,params.gtdata_x(:,1),t,'linear','extrap'), ...
                    'YData', interp1(params.gtdata_t,params.gtdata_x(:,2),t,'linear','extrap'));
-        set(maxplt, 'XData', Xest(1,i), 'YData', Xest(2,i));
+        set(maxplt, 'XData', Xtraj(1,tidx), 'YData', Xtraj(2,tidx));
         drawnow;
+        [ffname,junk] = sprintf('%s/%05d.png',params.framedir,tidx);
+        saveas(framefig,ffname,'png');
     end
     
     if (tidx < size(T,1))
